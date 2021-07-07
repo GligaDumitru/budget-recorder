@@ -2,10 +2,7 @@ import { GlobeAltIcon } from "@heroicons/react/outline";
 import SimpleTable from "./SimpleTable";
 import AddMoneyForm from "./AddMoneyForm";
 import { useEffect, useState } from "react";
-import {
-  firestore,
-  convertCollectionsSnapshotToMap,
-} from "../firebase";
+import { firestore, convertCollectionsSnapshotToMap } from "../firebase";
 import NavBar from "./NavBar";
 
 const features = [
@@ -80,6 +77,9 @@ const HomePage = () => {
     setIsAuth(workspace);
   };
 
+  const totalSpent = spendings.filter(el => el.currency === 'RON' && el.typeOfRecord === 'spend').reduce((acc, current) => acc + parseInt(current.amount), 0);
+  const totalEarned = spendings.filter(el => el.currency === 'RON' && el.typeOfRecord === 'earn').reduce((acc, current) => acc + parseInt(current.amount), 0)
+
   return (
     <>
       <NavBar isAuth={isAuth} handleSubmit={handleChangeWorkspace} />
@@ -125,6 +125,34 @@ const HomePage = () => {
           ) : (
             <div className="my-10">
               <AddMoneyForm handleOnSubmit={handleAddRecord} />
+              <div className="relative  my-5 md:flex md:justify-between sm:block ">
+                <div className="md:w-2/5 border-2 md:p-10 p-5 sm:w-full" >
+                  <div>
+                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                      <GlobeAltIcon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
+                    <span className="text-green-500">Spent</span>  
+                    </p>
+                  </div>
+                  <div className="mt-2 ml-16 text-base text-gray-500">
+                    {totalSpent} RON
+                  </div>
+                </div>
+                <div className="md:w-2/5 border-2 md:p-10 p-5 sm:w-full" >
+                  <div>
+                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-green-500 text-white">
+                      <GlobeAltIcon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
+                       <span className="text-green-500">Earned</span>  
+                    </p>
+                  </div>
+                  <div className="mt-2 ml-16 text-base text-gray-500">
+                    {totalEarned} RON
+                  </div>
+                </div>
+              </div>
               <SimpleTable data={spendings} handleDelete={handleDelete} />
             </div>
           )}
