@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Budget Record",
+  "name": "Budget Record",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,14 +8,20 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "budgetLogo.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "budgetLogo.png",
       "type": "image/png",
       "sizes": "512x512"
+    },
+    {
+      "src": "budgetLogo.png",
+      "sizes": "196x196",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "start_url": ".",
