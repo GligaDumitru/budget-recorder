@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 const tableHeaders = ["Edit", "Label", "Value", "Date", "Status"];
 
 type DataTypes = {
@@ -11,11 +12,117 @@ type DataTypes = {
 
 interface TableProps {
   handleDelete(arg: string): void;
-  data?: [DataTypes] | [] | never[];
+  data?: DataTypes[] | [];
 }
 
 const SimpleTable = (props: TableProps) => {
-  const { data, handleDelete } = props;
+  const { handleDelete } = props;
+  const [data, setData] = useState<DataTypes[] | []>(props.data || []);
+  const [currentFilter, setCurrentFilter] = useState({
+    type: "Date", // date or value
+    orderBy: "DESC", // ASC or DESC
+  });
+
+  useEffect(() => {
+    const filterData = () => {
+      let _tempArray = props.data || [];
+      switch (currentFilter.type) {
+        case "Status": {
+          if (currentFilter.orderBy === "ASC") {
+            _tempArray.sort((a, b) =>
+              a["typeOfRecord"].toLowerCase() > b.typeOfRecord.toLowerCase()
+                ? 1
+                : a.typeOfRecord.toLowerCase() < b.typeOfRecord.toLowerCase()
+                ? -1
+                : 0
+            );
+          } else if (currentFilter.orderBy === "DESC") {
+            _tempArray.sort((a, b) =>
+              a.typeOfRecord.toLowerCase() > b.typeOfRecord.toLowerCase()
+                ? -1
+                : a.typeOfRecord.toLowerCase() < b.typeOfRecord.toLowerCase()
+                ? 1
+                : 0
+            );
+          }
+          break;
+        }
+        case "Label": {
+          if (currentFilter.orderBy === "ASC") {
+            _tempArray.sort((a, b) =>
+              a.label.toLowerCase() > b.label.toLowerCase()
+                ? 1
+                : a.label.toLowerCase() < b.label.toLowerCase()
+                ? -1
+                : 0
+            );
+          } else if (currentFilter.orderBy === "DESC") {
+            _tempArray.sort((a, b) =>
+              a.label.toLowerCase() > b.label.toLowerCase()
+                ? -1
+                : a.label.toLowerCase() < b.label.toLowerCase()
+                ? 1
+                : 0
+            );
+          }
+          break;
+        }
+        case "Value": {
+          if (currentFilter.orderBy === "ASC") {
+            _tempArray.sort((a, b) =>
+              a.amount > b.amount ? 1 : a.amount < b.amount ? -1 : 0
+            );
+          } else if (currentFilter.orderBy === "DESC") {
+            _tempArray.sort((a, b) =>
+              a.amount > b.amount ? -1 : a.amount < b.amount ? 1 : 0
+            );
+          }
+          break;
+        }
+        case "Date": {
+          if (currentFilter.orderBy === "ASC") {
+            _tempArray.sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            );
+          } else if (currentFilter.orderBy === "DESC") {
+            _tempArray.sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            );
+          }
+          break;
+        }
+        default: {
+          _tempArray.sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+        }
+      }
+
+      return _tempArray;
+    };
+    setData(filterData());
+  }, [currentFilter, props.data]);
+
+  const handleSortByHeader = (hr: string) => {
+    const { type, orderBy } = currentFilter;
+    if (hr === type) {
+      setCurrentFilter({
+        ...currentFilter,
+        orderBy: orderBy === "ASC" ? "DESC" : "ASC",
+      });
+    } else {
+      setCurrentFilter({
+        type: hr,
+        orderBy: "ASC",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -24,12 +131,22 @@ const SimpleTable = (props: TableProps) => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {tableHeaders.map((tH) => (
+                  {tableHeaders.map((tH, index) => (
                     <th
+                      key={index}
                       scope="col"
+                      onClick={() => handleSortByHeader(tH)}
                       className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       {tH}
+                      {currentFilter.type === tH &&
+                        currentFilter.orderBy === "ASC" && (
+                          <i className="fas fa-chevron-down"></i>
+                        )}
+                      {currentFilter.type === tH &&
+                        currentFilter.orderBy === "DESC" && (
+                          <i className="fas fa-chevron-up"></i>
+                        )}
                     </th>
                   ))}
                 </tr>
@@ -38,15 +155,11 @@ const SimpleTable = (props: TableProps) => {
                 {data &&
                   data.length > 0 &&
                   data?.map(
-                    ({
-                      label,
-                      amount,
-                      currency,
-                      createdAt,
-                      typeOfRecord,
-                      id,
-                    }) => (
-                      <tr key={label}>
+                    (
+                      { label, amount, currency, createdAt, typeOfRecord, id },
+                      index
+                    ) => (
+                      <tr key={`${label}-${index}`}>
                         <td className="px-6  text-center py-4 whitespace-nowrap">
                           <div className="flex items-center justify-center">
                             <div className="">

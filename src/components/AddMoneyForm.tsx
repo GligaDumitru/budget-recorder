@@ -112,11 +112,10 @@ export default function AddMoneyForm(props: FormProps) {
               type="date"
               name="createdAt"
               id="createdAt"
-              value={createdAt}
+              value={createdAt || new Date().toISOString().substr(0, 10)}
               onChange={handleInputChange}
               className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-12 py-5 pr-12 sm:text-sm border-2 border-gray-100 rounded-md"
               placeholder="Label Name here"
-              defaultValue={new Date().toISOString().substr(0, 10)}
             />
           </div>
         </div>
